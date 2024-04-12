@@ -6,8 +6,81 @@ public class Graph {
     List<Edge> edges = new ArrayList<Edge>();
 
     public int calculatePath(int p1, int p2){
-        List<Edge> unchecked = getEdges(p1);
+        for(Vertex i : vertices){
+            i.path = Integer.MAX_VALUE;
+        }
 
+        List<Vertex> unchecked = new ArrayList<Vertex>(vertices);
+        List<Vertex> checked = new ArrayList<Vertex>();
+        List<Edge> connections = new ArrayList<Edge>();
+
+        Vertex current = getVertex(p1);
+        Vertex next = null;
+        int lightestEdge = Integer.MAX_VALUE;
+
+        while(!unchecked.isEmpty()){
+            if(current.id == p1){
+                current.path = 0;
+            }
+            checked.add(current);
+            unchecked.remove(current);
+            connections = getEdges(current.id);
+            for(Edge i : connections){
+                if(i.v1 == current){
+                    if(!checked.contains(i)){
+                        if(i.weight < lightestEdge){
+                            lightestEdge = i.weight;
+                            next = i.v2;
+                        }
+                    }
+                    if(current.path+i.weight < i.v2.path){
+                        i.v2.path = current.path+i.weight;
+                        //System.out.println("Ścieżka do " + i.v2.id + " wynosi " + i.v2.path);
+                    }
+                }
+                else{
+                    if(!checked.contains(i)){
+                        if(i.weight < lightestEdge){
+                            lightestEdge = i.weight;
+                            next = i.v1;
+                        }
+                    }
+                    if(current.path+i.weight < i.v1.path){
+                        i.v1.path = current.path+i.weight;
+                        //System.out.println("Ścieżka do " + i.v1.id + " wynosi " + i.v1.path);
+                    }
+                }
+            }
+            if(next == null || next == current){
+                Vertex potentialCurrent = null;
+                for(Vertex i : unchecked){
+                    if(potentialCurrent == null){
+                        potentialCurrent = i;
+                    }
+                    else if(i.path < potentialCurrent.path){
+                        potentialCurrent = i;
+                    }
+                }
+                if(potentialCurrent.path == Integer.MAX_VALUE){
+                    break;
+                }
+                else{
+                    current = potentialCurrent;
+                }
+            }
+            else{
+                next.previous = current;
+                current = next;
+            }
+        }
+
+        if(getVertex(p2).path == Integer.MAX_VALUE){
+            System.out.println("∞");
+        }
+        else{
+            System.out.println(getVertex(p2).path);
+        }
+        return getVertex(p2).path;
     }
 
     public Vertex getVertex(int id){
