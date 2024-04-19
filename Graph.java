@@ -5,82 +5,97 @@ public class Graph {
     List<Vertex> vertices = new ArrayList<Vertex>();
     List<Edge> edges = new ArrayList<Edge>();
 
+    //public List<Edge> minimalTreeKruskal(){
+    //    List<Edge> unchecked = new ArrayList<Edge>(edges);
+        //unchecked.sort();
+    //}
+
+    //public List<Edge> minimalTreePrim(){
+
+    //}
+
     public int calculatePath(int p1, int p2){
-        for(Vertex i : vertices){
-            i.path = Integer.MAX_VALUE;
-        }
-
-        List<Vertex> unchecked = new ArrayList<Vertex>(vertices);
-        List<Vertex> checked = new ArrayList<Vertex>();
-        List<Edge> connections = new ArrayList<Edge>();
-
-        Vertex current = getVertex(p1);
-        Vertex next = null;
-        int lightestEdge = Integer.MAX_VALUE;
-
-        while(!unchecked.isEmpty()){
-            if(current.id == p1){
-                current.path = 0;
+        if(getVertex(p1) != null && getVertex(p2) != null){
+            for(Vertex i : vertices){
+                i.path = Integer.MAX_VALUE;
             }
-            checked.add(current);
-            unchecked.remove(current);
-            connections = getEdges(current.id);
-            for(Edge i : connections){
-                if(i.v1 == current){
-                    if(!checked.contains(i)){
-                        if(i.weight < lightestEdge){
-                            lightestEdge = i.weight;
-                            next = i.v2;
+
+            List<Vertex> unchecked = new ArrayList<Vertex>(vertices);
+            List<Vertex> checked = new ArrayList<Vertex>();
+            List<Edge> connections = new ArrayList<Edge>();
+
+            Vertex current = getVertex(p1);
+            Vertex next = null;
+            int lightestEdge = Integer.MAX_VALUE;
+
+            while(!unchecked.isEmpty()){
+                if(current.id == p1){
+                    current.path = 0;
+                }
+                checked.add(current);
+                unchecked.remove(current);
+                connections = getEdges(current.id);
+                for(Edge i : connections){
+                    if(i.v1 == current){
+                        if(!checked.contains(i)){
+                            if(i.weight < lightestEdge){
+                                lightestEdge = i.weight;
+                                next = i.v2;
+                            }
+                        }
+                        if(current.path+i.weight < i.v2.path){
+                            i.v2.path = current.path+i.weight;
+                            //System.out.println("Ścieżka do " + i.v2.id + " wynosi " + i.v2.path);
                         }
                     }
-                    if(current.path+i.weight < i.v2.path){
-                        i.v2.path = current.path+i.weight;
-                        //System.out.println("Ścieżka do " + i.v2.id + " wynosi " + i.v2.path);
+                    else{
+                        if(!checked.contains(i)){
+                            if(i.weight < lightestEdge){
+                                lightestEdge = i.weight;
+                                next = i.v1;
+                            }
+                        }
+                        if(current.path+i.weight < i.v1.path){
+                            i.v1.path = current.path+i.weight;
+                            //System.out.println("Ścieżka do " + i.v1.id + " wynosi " + i.v1.path);
+                        }
+                    }
+                }
+                if(next == null || next == current){
+                    Vertex potentialCurrent = null;
+                    for(Vertex i : unchecked){
+                        if(potentialCurrent == null){
+                            potentialCurrent = i;
+                        }
+                        else if(i.path < potentialCurrent.path){
+                            potentialCurrent = i;
+                        }
+                    }
+                    if(potentialCurrent.path == Integer.MAX_VALUE){
+                        break;
+                    }
+                    else{
+                        current = potentialCurrent;
                     }
                 }
                 else{
-                    if(!checked.contains(i)){
-                        if(i.weight < lightestEdge){
-                            lightestEdge = i.weight;
-                            next = i.v1;
-                        }
-                    }
-                    if(current.path+i.weight < i.v1.path){
-                        i.v1.path = current.path+i.weight;
-                        //System.out.println("Ścieżka do " + i.v1.id + " wynosi " + i.v1.path);
-                    }
+                    next.previous = current;
+                    current = next;
                 }
             }
-            if(next == null || next == current){
-                Vertex potentialCurrent = null;
-                for(Vertex i : unchecked){
-                    if(potentialCurrent == null){
-                        potentialCurrent = i;
-                    }
-                    else if(i.path < potentialCurrent.path){
-                        potentialCurrent = i;
-                    }
-                }
-                if(potentialCurrent.path == Integer.MAX_VALUE){
-                    break;
-                }
-                else{
-                    current = potentialCurrent;
-                }
+
+            if(getVertex(p2).path == Integer.MAX_VALUE){
+                System.out.println("∞");
             }
             else{
-                next.previous = current;
-                current = next;
+                System.out.println(getVertex(p2).path);
             }
-        }
-
-        if(getVertex(p2).path == Integer.MAX_VALUE){
-            System.out.println("∞");
+            return getVertex(p2).path;
         }
         else{
-            System.out.println(getVertex(p2).path);
+            System.out.println("Punkty nie istnieją");
+            return -1;
         }
-        return getVertex(p2).path;
     }
 
     public Vertex getVertex(int id){
