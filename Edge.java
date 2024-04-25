@@ -5,7 +5,7 @@ public class Edge {
     Vertex v2;
     int weight;
 
-    List<Edge> tree = null;
+    boolean connect = false;
 
     public Edge(Vertex p1, Vertex p2, int wei){
         this.v1 = p1;
