@@ -17,6 +17,7 @@ public class Main {
         g.addVertex(9);
         g.addVertex(10);
         g.addVertex(11);
+        g.addVertex(12);
 
         g.addEdge(1,2,2);
         g.addEdge(1,3,6);
@@ -32,6 +33,7 @@ public class Main {
         g.addEdge(8,10,1);
         g.addEdge(9,10,3);
         g.addEdge(10,11,8);
+        g.addEdge(11,12,10);
 
         /*g.calculatePath(1,10);
         g.calculatePath(11,7);
