@@ -1,18 +1,102 @@
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Graph {
     List<Vertex> vertices = new ArrayList<Vertex>();
     List<Edge> edges = new ArrayList<Edge>();
 
-    //public List<Edge> minimalTreeKruskal(){
-    //    List<Edge> unchecked = new ArrayList<Edge>(edges);
-        //unchecked.sort();
-    //}
+    public List<Edge> minimalTreeKruskal(){
+        List<Edge> smallestTree = null;
+        List<Edge> v1connect = null, v2connect = null;
+        List<Edge> unchecked = new ArrayList<Edge>(edges);
+        List<List<Edge>> forest = new ArrayList<List<Edge>>();
+        Collections.sort(unchecked, new EdgeComparator());
+        Edge smol = unchecked.get(0);
 
-    //public List<Edge> minimalTreePrim(){
+        for(Edge e : unchecked) {
+            System.out.println("Kolejna tura:");
+            System.out.println(e.weight+" "+e.v1.id+" "+e.v2.id);
 
-    //}
+            if(!forest.isEmpty()) {
+                if(e.v1 != e.v2){
+                    if(calculatePath(smol.v1.id, e.v1.id) < Integer.MAX_VALUE){
+                        for (Edge i : getEdges(e.v1.id)) {
+                            System.out.println(v1connect);
+                            if (i.tree != null) {
+                                v1connect = i.tree;
+                                System.out.println("Wykryto drzewo na edgu "+i.v1.id+" "+i.v2.id);
+                                break;
+                            }
+                        }
+                        for (Edge i : getEdges(e.v2.id)) {
+                            if (i.tree != null) {
+                                v2connect = i.tree;
+                                System.out.println("Wykryto drzewo na edgu "+i.v1.id+" "+i.v2.id);
+                                break;
+                            }
+                        }
+                        System.out.println(v1connect);
+                        System.out.println(v2connect);
+
+                        if (v1connect == null && v2connect != null) {//only v2connect isn't null
+                            e.tree = v2connect;
+                            v2connect.add(e);
+                            System.out.println("v2 należy do drzewa");
+                        } else if (v2connect == null && v1connect != null) {//only v1connect isn't null
+                            e.tree = v1connect;
+                            v1connect.add(e);
+                            System.out.println("v1 należy do drzewa");
+                        } else if (v1connect != null && v2connect != null && v1connect != v2connect) {//neither is null nor same
+                            v1connect.addAll(v2connect);
+                            v1connect.add(e);
+                            forest.remove(v2connect);
+                            System.out.println("v1 i v2 należą do odrębnych drzew");
+                        } else if(v1connect == null && v2connect == null){//both are null
+                            forest.add(new ArrayList<Edge>());
+                            forest.get(forest.size() - 1).add(e);
+                            System.out.println("v1 i v2 nie należą do drzew");
+                        } else if(v1connect != null && v2connect != null && v1connect == v2connect){
+                            System.out.println("v1 i v2 należą do tego samego drzewa");
+                        }
+                    }
+                }
+            } else {
+                forest.add(new ArrayList<Edge>());
+                forest.get(0).add(unchecked.get(0));
+                e.tree = forest.get(0);
+            }
+
+            for(List<Edge> dr : forest){
+                System.out.println("Drzewo_____________________");
+                for(Edge eee : dr){
+                    System.out.println(eee.weight+" "+eee.v1.id+" "+eee.v2.id);
+                }
+                System.out.println("___________________________");
+            }
+
+        }
+
+        for(List<Edge> le : forest){
+            if(le.contains(smol)){
+                smallestTree = le;
+                break;
+            }
+        }
+
+        int treeWeight = 0;
+        for (Edge e : smallestTree){
+            treeWeight += e.weight;
+        }
+
+        System.out.println("Waga najmniejszego drzewa rozpinającego to " + treeWeight);
+
+        return smallestTree;
+    }
+
+    public List<Edge> minimalTreePrim(){
+        return null;
+    }
 
     public int calculatePath(int p1, int p2){
         if(getVertex(p1) != null && getVertex(p2) != null){
@@ -209,6 +293,13 @@ public class Graph {
         }
         else{
             System.out.println("Zbiór krawędzi jest pusty");
+        }
+    }
+
+    static class EdgeComparator implements java.util.Comparator<Edge> {
+        @Override
+        public int compare(Edge e1, Edge e2) {
+            return Integer.compare(e1.weight, e2.weight);
         }
     }
 }
