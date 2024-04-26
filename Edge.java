@@ -5,8 +5,6 @@ public class Edge {
     Vertex v2;
     int weight;
 
-    List<Edge> tree = null;
-
     public Edge(Vertex p1, Vertex p2, int wei){
         this.v1 = p1;
         this.v2 = p2;
