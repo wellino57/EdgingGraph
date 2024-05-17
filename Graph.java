@@ -1,6 +1,4 @@
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class Graph {
     List<Vertex> vertices = new ArrayList<Vertex>();
@@ -43,7 +41,74 @@ public class Graph {
     }
 
     public List<Edge> minimalTreePrim() {
-        return null;
+        if (vertices.isEmpty()) return new ArrayList<>();
+
+        PriorityQueue<Edge> priorityQueue = new PriorityQueue<>(Comparator.comparingInt(e -> e.weight));
+        boolean[] inMST = new boolean[vertices.size()];
+        List<Edge> mstEdges = new ArrayList<>();
+
+        Vertex start = vertices.get(0);
+        inMST[start.id] = true;
+
+        for (Edge edge : edges) {
+            if (edge.v1.equals(start) || edge.v2.equals(start)) {
+                priorityQueue.add(edge);
+            }
+        }
+
+        while (!priorityQueue.isEmpty() && mstEdges.size() < vertices.size() - 1) {
+            Edge minEdge = priorityQueue.poll();
+
+            if (inMST[minEdge.v1.id] && inMST[minEdge.v2.id]) {
+                continue;
+            }
+
+            Vertex newVertex = inMST[minEdge.v1.id] ? minEdge.v2 : minEdge.v1;
+
+            if (!inMST[newVertex.id]) {
+                mstEdges.add(minEdge);
+                inMST[newVertex.id] = true;
+
+                for (Edge edge : edges) {
+                    if ((edge.v1.equals(newVertex) && !inMST[edge.v2.id]) ||
+                            (edge.v2.equals(newVertex) && !inMST[edge.v1.id])) {
+                        priorityQueue.add(edge);
+                    }
+                }
+            }
+        }
+
+        return mstEdges;
+    }
+
+    public void colorGraph() {
+        if (vertices.isEmpty()) return;
+
+        vertices.get(0).color = 0;
+
+        boolean[] availableColors = new boolean[vertices.size()];
+        Arrays.fill(availableColors, true);
+
+        for (int i = 1; i < vertices.size(); i++) {
+            Vertex vertex = vertices.get(i);
+
+            for (Edge edge : edges) {
+                if (edge.v1.equals(vertex) && edge.v2.color != -1) {
+                    availableColors[edge.v2.color] = false;
+                } else if (edge.v2.equals(vertex) && edge.v1.color != -1) {
+                    availableColors[edge.v1.color] = false;
+                }
+            }
+
+            int color;
+            for (color = 0; color < availableColors.length; color++) {
+                if (availableColors[color]) break;
+            }
+
+            vertex.color = color;
+
+            Arrays.fill(availableColors, true);
+        }
     }
 
     public int treeWeight(List<Edge> tree) {
